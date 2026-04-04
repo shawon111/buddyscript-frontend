@@ -2,7 +2,7 @@ import React from 'react';
 import WriteComment from './WriteComment';
 import Comment from './Comment';
 
-const CommentPanel = () => {
+const CommentPanel = ({ comments }) => {
     return (
         <>
             <div className="_feed_inner_timeline_cooment_area">
@@ -10,12 +10,13 @@ const CommentPanel = () => {
             </div>
 
             <div className="_timline_comment_main">
-                <div className="_previous_comment">
-                    <button type="button" className="_previous_comment_txt">
-                        View 4 previous comments
-                    </button>
-                </div>
-                <Comment />
+                {comments?.length > 0 ? (
+                    comments.map((comment) => (
+                        <Comment key={comment._id} comment={comment} />
+                    ))
+                ) : (
+                    <p>No comments available.</p>   
+                )}
             </div>
         </>
     );

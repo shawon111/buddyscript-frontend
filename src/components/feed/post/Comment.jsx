@@ -1,7 +1,9 @@
 import React from 'react';
 import WriteComment from './WriteComment';
+import { calculateTime } from '@/utils/calculateTime';
 
-const Comment = () => {
+const Comment = ({ comment }) => {
+    const { author, text, likes, createdAt } = comment;
     return (
         <div className="_comment_main">
             <div className="_comment_image">
@@ -22,7 +24,7 @@ const Comment = () => {
                         <div className="_comment_name">
                             <a href="profile.html ">
                                 <h4 className="_comment_name_title">
-                                    Radovan SkillArena
+                                    {author.firstName} {author.lastName}
                                 </h4>
                             </a>
                         </div>
@@ -30,9 +32,7 @@ const Comment = () => {
                     <div className="_comment_status">
                         <p className="_comment_status_text">
                             <span>
-                                It is a long established fact that a reader
-                                will be distracted by the readable content of
-                                a page when looking at its layout.{" "}
+                                {text}{" "}
                             </span>
                         </p>
                     </div>
@@ -71,7 +71,7 @@ const Comment = () => {
                                 </svg>
                             </span>
                         </div>
-                        <span className="_total">198</span>
+                        <span className="_total">{likes?.length || 0}</span>
                     </div>
                     <div className="_comment_reply">
                         <div className="_comment_reply_num">
@@ -86,7 +86,7 @@ const Comment = () => {
                                     <span>Share</span>
                                 </li>
                                 <li>
-                                    <span className="_time_link">. 21m</span>
+                                    <span className="_time_link">. {calculateTime(createdAt)}</span>
                                 </li>
                             </ul>
                         </div>

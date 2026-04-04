@@ -3291,6 +3291,8 @@
 }
 ._dark_wrapper ._comment_reply_list li ._time_link {
     color: var(--color7);
+    display: inline-block;
+    width: fit-content;
 }
 ._dark_wrapper ._top_inner_dropdown {
     background:var(--bg6);
@@ -5973,7 +5975,7 @@
 }
 ._comment_reply_num {
     position: absolute;
-    bottom: -37px;
+    bottom: -60px;
 }
 ._comment_reply_list {
     display: flex;

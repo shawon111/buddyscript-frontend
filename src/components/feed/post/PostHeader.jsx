@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { calculateTime } from "@/utils/calculateTime";
+import { useState } from "react";
 
-const PostHeader = () => {
+const PostHeader = ({ author, isPrivate, createdAt }) => {
     const [showTimelineDrop, setShowTimelineDrop] = useState(false);
-
+    const { firstName, lastName } = author || {};
     return (
         <div className="_feed_inner_timeline_post_top">
             <div className="_feed_inner_timeline_post_box">
@@ -17,10 +18,10 @@ const PostHeader = () => {
                 </div>
                 <div className="_feed_inner_timeline_post_box_txt">
                     <h4 className="_feed_inner_timeline_post_box_title">
-                        Karim Saif
+                        {firstName} {lastName}
                     </h4>
                     <p className="_feed_inner_timeline_post_box_para">
-                        5 minute ago .<a href="#0"> Public</a>
+                        {calculateTime(createdAt)} .<a href="#0"> {isPrivate ? "Private" : "Public"}</a>
                     </p>
                 </div>
             </div>
@@ -30,7 +31,7 @@ const PostHeader = () => {
                         href="#0"
                         id="_timeline_show_drop_btn"
                         className="_feed_timeline_post_dropdown_link"
-                        onClick={()=> setShowTimelineDrop((prev)=> !prev)}
+                        onClick={() => setShowTimelineDrop((prev) => !prev)}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

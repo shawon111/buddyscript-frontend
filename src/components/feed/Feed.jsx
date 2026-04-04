@@ -1,14 +1,20 @@
-import ModeSwitch from './layout/ModeSwitch';
-import DesktopMenu from './layout/DesktopMenu';
-import MobileMenu from './layout/MobileMenu';
-import MobileBottomNavigation from './layout/MobileBottomNavigation';
-import LeftSidebar from './layout/LeftSidebar';
-import RightSidebar from './layout/RightSidebar';
-import Story from './feed/Story';
-import CreatePost from './feed/CreatePost';
-import PostCard from './feed/PostCard';
+import ModeSwitch from '../layout/ModeSwitch';
+import DesktopMenu from '../layout/DesktopMenu';
+import MobileMenu from '../layout/MobileMenu';
+import MobileBottomNavigation from '../layout/MobileBottomNavigation';
+import LeftSidebar from '../layout/LeftSidebar';
+import RightSidebar from '../layout/RightSidebar';
+import Story from './Story';
+import CreatePost from './CreatePost';
+import PostCard from './PostCard';
+import { serverFetch } from '@/utils/serverFetch';
+import { BaseUrl } from '@/utils/BaseUrl';
 
-const Feed = () => {
+const Feed = async () => {
+    const posts = await serverFetch(`${BaseUrl}/posts`, {
+        method: "GET",
+    });
+    console.log("Posts in Feed:", posts.data);
     return (
         <div>
                 {/*Feed Section Start*/}
@@ -39,7 +45,15 @@ const Feed = () => {
                                             <div className="_layout_middle_inner">
                                                 <Story />
                                                 <CreatePost />
-                                                <PostCard />
+                                                {
+                                                    posts?.data?.length > 0 ? (
+                                                        posts.data.map((post) => (
+                                                            <PostCard key={post._id} post={post} />
+                                                        ))
+                                                    ) : (
+                                                        <p>No posts available.</p>
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                     </div>

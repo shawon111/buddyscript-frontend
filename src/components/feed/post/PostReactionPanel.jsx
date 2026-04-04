@@ -1,43 +1,40 @@
+import Image from 'next/image';
 import React from 'react';
 
-const PostReactionPanel = () => {
+const PostReactionPanel = ({ likes, commentsCount }) => {
+    const images = [
+        '/images/react_img1.png',
+        '/images/react_img2.png',
+        '/images/react_img3.png',
+        '/images/react_img4.png',
+        '/images/react_img5.png'
+    ];
+
+    const numToShow = likes?.length > 6 ? images.length : likes?.length || 0;
+    const imagesToShow = images.slice(0, numToShow);
+
     return (
         <div>
             <div className="_feed_inner_timeline_total_reacts _padd_r24 _padd_l24 _mar_b26">
                 <div className="_feed_inner_timeline_total_reacts_image">
-                    <img
-                        src="/images/react_img1.png"
-                        alt="Image"
-                        className="_react_img1"
-                    />
-                    <img
-                        src="/images/react_img2.png"
-                        alt="Image"
-                        className="_react_img"
-                    />
-                    <img
-                        src="/images/react_img3.png"
-                        alt="Image"
-                        className="_react_img _rect_img_mbl_none"
-                    />
-                    <img
-                        src="/images/react_img4.png"
-                        alt="Image"
-                        className="_react_img _rect_img_mbl_none"
-                    />
-                    <img
-                        src="/images/react_img5.png"
-                        alt="Image"
-                        className="_react_img _rect_img_mbl_none"
-                    />
+                    {imagesToShow.map((src, index) => (
+                        <Image
+                            key={index}
+                            src={src}
+                            alt="Image"
+                            width={30}
+                            height={30}
+                            className={index === 0 ? "_react_img1" : "_react_img" + (index > 1 ? " _rect_img_mbl_none" : "")}
+                        />
+                    ))}
                     <p className="_feed_inner_timeline_total_reacts_para">
-                        9+
+                        <span>{likes?.length || 0}</span>+
                     </p>
                 </div>
                 <div className="_feed_inner_timeline_total_reacts_txt">
                     <p className="_feed_inner_timeline_total_reacts_para1">
                         <a href="#0">
-                            <span>12</span> Comment
+                            <span>{commentsCount}</span> Comment
                         </a>
                     </p>
                     <p className="_feed_inner_timeline_total_reacts_para2">

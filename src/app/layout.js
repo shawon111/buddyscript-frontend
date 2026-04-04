@@ -4,6 +4,9 @@ import "./globals.css";
 import "./main.css";
 import "./responsive.css";
 import BootstrapClient from "@/bootstrap/BootstrapClient";
+import Providers from "../utils/providers";
+import { Toaster } from "react-hot-toast";
+import { getUser } from "@/utils/getUser";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -19,8 +22,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <BootstrapClient />
-        {children}
+        <Toaster />
+        <Providers>
+          <BootstrapClient />
+          {children}
+        </Providers>
       </body>
     </html>
   );
