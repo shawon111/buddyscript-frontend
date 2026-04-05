@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const PostReactionPanel = ({ likes, user, postId, commentsCount }) => {
+    // like count state
+    const [likeCount, setLikeCount] = useState(()=> likes?.length ?? 0)
     // like state
     const [isLiked, setIsLiked] = useState(
         () => likes?.some(like => like._id === user?._id) ?? false
@@ -20,14 +22,21 @@ const PostReactionPanel = ({ likes, user, postId, commentsCount }) => {
     ];
 
     // conditionally avatars
-    const numToShow = likes?.length > 6 ? images.length : likes?.length || 0;
+    const numToShow = likeCount > 6 ? images.length : likeCount || 0;
     const imagesToShow = images.slice(0, numToShow);
 
     // handle like button click
     const handleLikeClick = async (e) => {
         e.preventDefault();
+        const initialLikeCount = likeCount;
         const newLikeStatus = !isLiked;
         setIsLiked(newLikeStatus);
+        // handle like count
+        if(newLikeStatus){
+            setLikeCount((prev)=> prev + 1)
+        }else {
+            setLikeCount((prev)=> prev - 1)
+        }
         // toggle like status in backend
         try {
             await fetchWithAuth(`${BaseUrl}/reactions/post/${postId}`, {
@@ -35,6 +44,7 @@ const PostReactionPanel = ({ likes, user, postId, commentsCount }) => {
             });
         } catch {
             setIsLiked(!newLikeStatus);
+            setLikeCount(initialLikeCount)
         }
     };
 
@@ -53,7 +63,7 @@ const PostReactionPanel = ({ likes, user, postId, commentsCount }) => {
                         />
                     ))}
                     <p className="_feed_inner_timeline_total_reacts_para">
-                        <span>{likes?.length || 0}</span>+
+                        <span>{likeCount || 0}</span>+
                     </p>
                 </div>
                 <div className="_feed_inner_timeline_total_reacts_txt">

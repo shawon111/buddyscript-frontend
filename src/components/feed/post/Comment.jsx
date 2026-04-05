@@ -7,6 +7,8 @@ import fetchWithAuth from '@/utils/fetchWithAuth';
 
 const Comment = ({ comment, user }) => {
     const { author, text, likes, createdAt } = comment;
+    // like count state
+    const [likeCount, setLikeCount] = useState(()=> likes?.length ?? 0)
     // like state
     const [isLiked, setIsLiked] = useState(
         () => likes?.some(like => like === user?._id) ?? false
@@ -15,15 +17,24 @@ const Comment = ({ comment, user }) => {
     // handle like button click
     const handleLikeClick = async (e) => {
         e.preventDefault();
+        const initialLikeCount = likeCount;
         const newLikeStatus = !isLiked;
         setIsLiked(newLikeStatus);
+        // handle like count
+        if(newLikeStatus){
+            setLikeCount((prev)=> prev + 1)
+        }else {
+            setLikeCount((prev)=> prev - 1)
+        }
         // toggle like status in backend
         try {
             await fetchWithAuth(`${BaseUrl}/reactions/comment/${comment?._id}`, {
                 method: "POST",
             });
+
         } catch {
             setIsLiked(!newLikeStatus);
+            setLikeCount(initialLikeCount)
         }
     };
 
@@ -94,7 +105,7 @@ const Comment = ({ comment, user }) => {
                                 </svg>
                             </span>
                         </div>
-                        <span className="_total">{likes?.length || 0}</span>
+                        <span className="_total">{likeCount || 0}</span>
                     </div>
                     <div className="_comment_reply">
                         <div className="_comment_reply_num">
