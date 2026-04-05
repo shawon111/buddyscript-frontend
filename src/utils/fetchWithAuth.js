@@ -1,44 +1,26 @@
-import refreshAccessToken from "./refreshAccessToken";
+const fetchWithAuth = async (url, options = {}) => {
+  try {
+    const res = await fetch(url, {
+      ...options,
+      credentials: "include",
+    });
 
-const fetchWithAuth = async (url, options = {}, retry = true) => {
-    try {
-        const res = await fetch(url, {
-            ...options,
-            credentials: "include",
-        });
+    const data = await res.json().catch(() => null);
 
-        let data = null;
+    if (res.ok) return data;
 
-        try {
-            data = await res.json();
-        } catch {
-            data = null;
-        }
-
-        if (res.ok) {
-            return data;
-        }
-
-        // Access token expired so refresh
-        if (data?.shouldRefresh && retry) {
-            try {
-                await refreshAccessToken();
-
-                // Retry once
-                return fetchWithAuth(url, options, false);
-            } catch (err) {
-                //Refresh failed 
-                if (typeof window !== "undefined") {
-                    window.location.href = "/login";
-                }
-                throw new Error("Session expired");
-            }
-        }
-
-        throw new Error(data?.message || "Request failed");
-    } catch (error) {
-        throw error;
+    if (res.status === 401 && data.shouldLogin===true) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      throw new Error("Session expired");
     }
+
+    throw new Error(data?.message || "Request failed");
+
+  } catch (error) {
+    throw error;
+  }
 };
 
 export default fetchWithAuth;
