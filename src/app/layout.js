@@ -7,6 +7,7 @@ import BootstrapClient from "@/bootstrap/BootstrapClient";
 import Providers from "../utils/providers";
 import { Toaster } from "react-hot-toast";
 import { getUser } from "@/utils/getUser";
+import AuthProvider from "@/components/auth/AuthProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,8 +25,10 @@ export default function RootLayout({ children }) {
       <body className={poppins.className}>
         <Toaster />
         <Providers>
-          <BootstrapClient />
-          {children}
+          <AuthProvider>
+            <BootstrapClient />
+            {children}
+          </AuthProvider>
         </Providers>
       </body>
     </html>
