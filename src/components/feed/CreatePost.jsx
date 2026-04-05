@@ -1,13 +1,98 @@
-import React from 'react';
+"use client"
+
+import { BaseUrl } from '@/utils/BaseUrl';
+import fetchWithAuth from '@/utils/fetchWithAuth';
+import { useMutation } from '@tanstack/react-query';
+import Image from 'next/image';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter } from "next/navigation";
 
 const CreatePost = () => {
+    const [postText, setPostText] = useState("")
+    const [postImage, setPostImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const router = useRouter()
+
+    // handleImageSignature
+    const imageUploadSignature = async () => {
+        return await fetchWithAuth(`${BaseUrl}/uploads/image`)
+    }
+
+    // handle file change
+    const handleFileChange = (e) => {
+        const file = e.target.files[0]
+        setPreviewImage(URL.createObjectURL(file))
+        setPostImage(file)
+    }
+
+    // handle image upload
+    const handleImageUpload = async () => {
+        const formData = new FormData();
+        const cloudinarySignature = await imageUploadSignature();
+        // prepare form data
+        if (cloudinarySignature?.success) {
+            const { api_key, cloud_name, folder, signature, timestamp } = cloudinarySignature.data;
+            formData.append('file', postImage)
+            formData.append("api_key", api_key);
+            formData.append("timestamp", timestamp);
+            formData.append("signature", signature);
+            formData.append("folder", folder);
+
+            // upload
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            setPreviewImage(data?.secure_url)
+            return data?.secure_url
+        }
+    }
+
+    const handlePost = async () => {
+        const imageUrl = await handleImageUpload();
+        const postTextData = postText;
+        const data = {
+            text: postTextData,
+            image: imageUrl,
+            isPrivate: false
+        }
+        const savePost = await fetchWithAuth(`${BaseUrl}/posts`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        return savePost;
+    }
+
+    const postMutation = useMutation({
+        mutationFn: handlePost,
+        onSuccess: () => {
+            setPostImage(null)
+            setPreviewImage(null)
+            setPostText("")
+            toast.success("Post created successfully!")
+            router.refresh()
+        },
+        onError: (err) => {
+            console.log(err)
+            toast.error("Failed to save post, please try again")
+        }
+    })
+
     return (
         <div className="_feed_inner_text_area  _b_radious6 _padd_b24 _padd_t24 _padd_r24 _padd_l24 _mar_b16">
             <div className="_feed_inner_text_area_box">
                 <div className="_feed_inner_text_area_box_image">
-                    <img
+                    <Image
                         src="/images/txt_img.png"
                         alt="Image"
+                        width={35.5}
+                        height={35.5}
                         className="_txt_img"
                     />
                 </div>
@@ -16,7 +101,8 @@ const CreatePost = () => {
                         className="form-control _textarea"
                         placeholder="Leave a comment here"
                         id="floatingTextarea"
-                        defaultValue={""}
+                        value={postText}
+                        onChange={(e) => setPostText(e.target.value)}
                     />
                     <label
                         className="_feed_textarea_label"
@@ -36,6 +122,17 @@ const CreatePost = () => {
                             />
                         </svg>
                     </label>
+                    {
+                        previewImage && <>
+                            <Image
+                                src={previewImage}
+                                alt='image preview'
+                                className='w-full'
+                                width={550}
+                                height={300}
+                            />
+                        </>
+                    }
                 </div>
             </div>
             {/*For Desktop*/}
@@ -44,7 +141,7 @@ const CreatePost = () => {
                     <div className="_feed_inner_text_area_bottom_photo _feed_common">
                         <button
                             type="button"
-                            className="_feed_inner_text_area_bottom_photo_link"
+                            className="_feed_inner_text_area_bottom_photo_link _post_img_upload_btn"
                         >
                             {" "}
                             <span className="_feed_inner_text_area_bottom_photo_iamge _mar_img">
@@ -63,6 +160,11 @@ const CreatePost = () => {
                                 </svg>
                             </span>
                             Photo
+                            <input
+                                type="file"
+                                accept="image/jpeg, image/png"
+                                onChange={(e) => handleFileChange(e)}
+                            />
                         </button>
                     </div>
                     <div className="_feed_inner_text_area_bottom_video _feed_common">
@@ -142,6 +244,11 @@ const CreatePost = () => {
                     <button
                         type="button"
                         className="_feed_inner_text_area_btn_link"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            postMutation.mutate();
+                        }}
+                        disabled={postMutation.isPending}
                     >
                         <svg
                             className="_mar_img"
@@ -158,7 +265,7 @@ const CreatePost = () => {
                                 clipRule="evenodd"
                             />
                         </svg>{" "}
-                        <span>Post</span>
+                        <span>{postMutation.isPending ? "Posting.." : "Post"}</span>
                     </button>
                 </div>
             </div>
@@ -258,6 +365,8 @@ const CreatePost = () => {
                         <button
                             type="button"
                             className="_feed_inner_text_area_btn_link"
+                            disabled={postMutation.isPending}
+                            onClick={() => postMutation.mutate()}
                         >
                             <svg
                                 className="_mar_img"
@@ -274,7 +383,7 @@ const CreatePost = () => {
                                     clipRule="evenodd"
                                 />
                             </svg>{" "}
-                            <span>Post</span>
+                            <span>{postMutation.isPending ? "Posting.." : "Post"}</span>
                         </button>
                     </div>
                 </div>

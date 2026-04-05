@@ -14,7 +14,6 @@ const Feed = async () => {
     const posts = await serverFetch(`${BaseUrl}/posts`, {
         method: "GET",
     });
-    console.log("Posts in Feed:", posts.data);
     return (
         <div>
                 {/*Feed Section Start*/}
