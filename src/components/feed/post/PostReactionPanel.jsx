@@ -1,7 +1,16 @@
-import Image from 'next/image';
-import React from 'react';
+"use client";
 
-const PostReactionPanel = ({ likes, commentsCount }) => {
+import { BaseUrl } from '@/utils/BaseUrl';
+import fetchWithAuth from '@/utils/fetchWithAuth';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+const PostReactionPanel = ({ likes, user, postId, commentsCount }) => {
+    // like state
+    const [isLiked, setIsLiked] = useState(
+        () => likes?.some(like => like._id === user?._id) ?? false
+    );
+
     const images = [
         '/images/react_img1.png',
         '/images/react_img2.png',
@@ -10,8 +19,24 @@ const PostReactionPanel = ({ likes, commentsCount }) => {
         '/images/react_img5.png'
     ];
 
+    // conditionally avatars
     const numToShow = likes?.length > 6 ? images.length : likes?.length || 0;
     const imagesToShow = images.slice(0, numToShow);
+
+    // handle like button click
+    const handleLikeClick = async (e) => {
+        e.preventDefault();
+        const newLikeStatus = !isLiked;
+        setIsLiked(newLikeStatus);
+        // toggle like status in backend
+        try {
+            await fetchWithAuth(`${BaseUrl}/reactions/post/${postId}`, {
+                method: "POST",
+            });
+        } catch {
+            setIsLiked(!newLikeStatus);
+        }
+    };
 
     return (
         <div>
@@ -43,7 +68,7 @@ const PostReactionPanel = ({ likes, commentsCount }) => {
                 </div>
             </div>
             <div className="_feed_inner_timeline_reaction">
-                <button className="_feed_inner_timeline_reaction_emoji _feed_reaction _feed_reaction_active">
+                <button onClick={(e) => handleLikeClick(e)} className={`_feed_inner_timeline_reaction_emoji _feed_reaction ${isLiked ? "_feed_reaction_active" : ""}`}>
                     <span className="_feed_inner_timeline_reaction_link">
                         <span>
                             <svg
@@ -71,7 +96,7 @@ const PostReactionPanel = ({ likes, commentsCount }) => {
                                 />
                             </svg>
                             {" "}
-                             Haha
+                            {isLiked ? "Unlike" : "Like"}
                         </span>
                     </span>
                 </button>

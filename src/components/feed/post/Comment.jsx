@@ -1,9 +1,32 @@
-import React from 'react';
+"use client"
+import { useState } from 'react';
 import WriteComment from './WriteComment';
 import { calculateTime } from '@/utils/calculateTime';
+import { BaseUrl } from '@/utils/BaseUrl';
+import fetchWithAuth from '@/utils/fetchWithAuth';
 
-const Comment = ({ comment }) => {
+const Comment = ({ comment, user }) => {
     const { author, text, likes, createdAt } = comment;
+    // like state
+    const [isLiked, setIsLiked] = useState(
+        () => likes?.some(like => like === user?._id) ?? false
+    );
+
+    // handle like button click
+    const handleLikeClick = async (e) => {
+        e.preventDefault();
+        const newLikeStatus = !isLiked;
+        setIsLiked(newLikeStatus);
+        // toggle like status in backend
+        try {
+            await fetchWithAuth(`${BaseUrl}/reactions/comment/${comment?._id}`, {
+                method: "POST",
+            });
+        } catch {
+            setIsLiked(!newLikeStatus);
+        }
+    };
+
     return (
         <div className="_comment_main">
             <div className="_comment_image">
@@ -76,8 +99,8 @@ const Comment = ({ comment }) => {
                     <div className="_comment_reply">
                         <div className="_comment_reply_num">
                             <ul className="_comment_reply_list">
-                                <li>
-                                    <span>Like.</span>
+                                <li className={isLiked ? "_comment_liked" : ""} onClick={(e)=> handleLikeClick(e)}>
+                                    <span>{isLiked ? "Unlike" : "Like"}</span>
                                 </li>
                                 <li>
                                     <span>Reply.</span>

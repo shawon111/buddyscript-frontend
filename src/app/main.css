@@ -6022,3 +6022,8 @@
     margin:0 6px 0 0;
 }
 /*--- chat mobile seetings css end ----*/
+
+/* new css start */
+._comment_liked span{
+    color: #00ACFF !important;
+}

@@ -21,7 +21,7 @@ const PostHeader = ({ author, isPrivate, createdAt }) => {
                         {firstName} {lastName}
                     </h4>
                     <p className="_feed_inner_timeline_post_box_para">
-                        {calculateTime(createdAt)} .<a href="#0"> {isPrivate ? "Private" : "Public"}</a>
+                        {calculateTime(createdAt)} ago.<a href="#0"> {isPrivate ? "Private" : "Public"}</a>
                     </p>
                 </div>
             </div>

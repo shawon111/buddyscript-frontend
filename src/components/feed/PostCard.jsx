@@ -5,13 +5,15 @@ import CommentPanel from './post/CommentPanel';
 import Image from 'next/image';
 import { BaseUrl } from '@/utils/BaseUrl';
 import { serverFetch } from '@/utils/serverFetch';
+import { getUser } from '@/utils/getUser';
 
-const PostCard = async({post}) => {
-    const {text, image} = post; 
+const PostCard = async ({ post }) => {
+    const { text, image } = post;
     const comments = await serverFetch(`${BaseUrl}/comments?postId=${post?._id}`, {
         method: "GET",
     });
-    console.log("Comments for post", post?._id, ":", comments);
+    const checkUser = await getUser();
+    const { user } = checkUser;
     return (
         <div className="_feed_inner_timeline_post_area _b_radious6 _padd_b24 _padd_t24 _mar_b16">
             <div className="_feed_inner_timeline_content _padd_r24 _padd_l24">
@@ -22,17 +24,17 @@ const PostCard = async({post}) => {
                 <div className="_feed_inner_timeline_image">
                     {
                         image ? <Image
-                        src={image}
-                        alt="Post Image"
-                        width={588}
-                        height={387}
-                        className="_time_img"
-                    /> : ""
+                            src={image}
+                            alt="Post Image"
+                            width={588}
+                            height={387}
+                            className="_time_img"
+                        /> : ""
                     }
                 </div>
             </div>
-            <PostReactionPanel likes={post?.likes} commentsCount={comments?.data?.length || 0} />
-            <CommentPanel comments={comments?.data} />
+            <PostReactionPanel likes={post?.likes} user={user.data} postId={post?._id} commentsCount={comments?.data?.length || 0} />
+            <CommentPanel user={user.data} comments={comments?.data} />
         </div>
     );
 };
